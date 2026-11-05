@@ -1,0 +1,204 @@
+{
+  "name": "spendfirewall-vscode",
+  "displayName": "Spend Firewall",
+  "description": "See and stop what your AI agents spend, right from VS Code: live spend, sessions, kill switch and policy files.",
+  "version": "0.1.0",
+  "publisher": "spendfirewall",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other",
+    "Linters"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "spendfirewall.signIn",
+        "title": "Sign In",
+        "category": "Spend Firewall"
+      },
+      {
+        "command": "spendfirewall.signOut",
+        "title": "Sign Out",
+        "category": "Spend Firewall"
+      },
+      {
+        "command": "spendfirewall.connectWorkspace",
+        "title": "Connect Workspace (.env)",
+        "category": "Spend Firewall"
+      },
+      {
+        "command": "spendfirewall.pushPolicy",
+        "title": "Push Policy File",
+        "category": "Spend Firewall",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "spendfirewall.newPolicyFile",
+        "title": "Create Policy File",
+        "category": "Spend Firewall"
+      },
+      {
+        "command": "spendfirewall.refresh",
+        "title": "Refresh",
+        "category": "Spend Firewall",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "spendfirewall.killSession",
+        "title": "Kill Session",
+        "category": "Spend Firewall",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "spendfirewall.reviveSession",
+        "title": "Revive Session",
+        "category": "Spend Firewall",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "spendfirewall.openDashboard",
+        "title": "Open Dashboard",
+        "category": "Spend Firewall"
+      }
+    ],
+    "configuration": {
+      "title": "Spend Firewall",
+      "properties": {
+        "spendfirewall.gatewayUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "Base URL of your Spend Firewall gateway."
+        },
+        "spendfirewall.dashboardUrl": {
+          "type": "string",
+          "default": "http://localhost:5173",
+          "description": "URL of the web dashboard."
+        },
+        "spendfirewall.agentId": {
+          "type": "string",
+          "default": "",
+          "description": "Agent id used for this workspace. Empty = '<folder name>-dev'."
+        },
+        "spendfirewall.onlyThisWorkspace": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show only sessions from this workspace's agent id."
+        },
+        "spendfirewall.pollSeconds": {
+          "type": "number",
+          "default": 10,
+          "minimum": 3,
+          "description": "How often to refresh spend and sessions."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "spendfirewall",
+          "title": "Spend Firewall",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "spendfirewall": [
+        {
+          "id": "spendfirewall.sessions",
+          "name": "Sessions"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "spendfirewall.sessions",
+        "contents": "Connect to your Spend Firewall gateway to see live agent sessions.\n[Sign In](command:spendfirewall.signIn)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "spendfirewall.refresh",
+          "when": "view == spendfirewall.sessions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "spendfirewall.killSession",
+          "when": "view == spendfirewall.sessions && viewItem == session",
+          "group": "inline"
+        },
+        {
+          "command": "spendfirewall.reviveSession",
+          "when": "view == spendfirewall.sessions && viewItem == session-killed",
+          "group": "inline"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "spendfirewall.pushPolicy",
+          "when": "resourceFilename =~ /^spendfirewall\\.(ya?ml|json)$/",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "spendfirewall.killSession",
+          "when": "false"
+        },
+        {
+          "command": "spendfirewall.reviveSession",
+          "when": "false"
+        }
+      ]
+    },
+    "yamlValidation": [
+      {
+        "fileMatch": "spendfirewall.yaml",
+        "url": "./schema/policy.schema.json"
+      },
+      {
+        "fileMatch": "spendfirewall.yml",
+        "url": "./schema/policy.schema.json"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "spendfirewall.json",
+        "url": "./schema/policy.schema.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/envfile.test.mjs",
+    "package": "pnpm build && npx @vscode/vsce package --no-dependencies --skip-license"
+  },
+  "dependencies": {
+    "spendfirewall": "workspace:*",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RohanCh07/Spend-firewall",
+    "directory": "extensions/vscode"
+  },
+  "icon": "media/icon.png"
+}

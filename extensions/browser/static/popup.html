@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <section id="setup" hidden>
+      <h1><span class="logo">◆</span> Spend Firewall</h1>
+      <p class="muted">Connect to your gateway with an admin key.</p>
+      <form id="setup-form">
+        <label>Gateway URL<input id="gw" required /></label>
+        <label>Admin key<input id="key" type="password" placeholder="sf-..." required /></label>
+        <label>Dashboard URL<input id="dash" /></label>
+        <div id="setup-error" class="error"></div>
+        <button>Connect</button>
+      </form>
+    </section>
+
+    <section id="main" hidden>
+      <header>
+        <h1><span class="logo">◆</span> <span id="tenant">Spend Firewall</span></h1>
+        <a href="#" id="open-dash">Dashboard ↗</a>
+      </header>
+      <div class="kpis">
+        <div><div class="label">Spend 24h</div><div class="big" id="spend">…</div></div>
+        <div><div class="label">Calls</div><div class="big" id="calls">…</div></div>
+        <div><div class="label">Blocked</div><div class="big" id="blocked">…</div></div>
+      </div>
+      <div id="status" class="error"></div>
+      <h2>Live sessions</h2>
+      <ul id="sessions"></ul>
+      <footer><button id="signout" class="ghost">Sign out</button></footer>
+    </section>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

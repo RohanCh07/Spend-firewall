@@ -66,3 +66,14 @@ async def test_keys(h: Harness):
     assert (await h.chat(key=k["key"])).status_code == 200
     assert (await h.admin("DELETE", f"/keys/{k['id']}")).status_code == 204
     assert (await h.chat(key=k["key"])).status_code == 401
+
+
+async def test_example_policy_file_applies(h: Harness):
+    from pathlib import Path
+
+    import yaml
+
+    doc = yaml.safe_load((Path(__file__).resolve().parents[2] / "shared/policy-schema/example.spendfirewall.yaml").read_text())
+    r = await h.admin("PUT", "/policies", json=doc)
+    assert r.status_code == 200, r.text
+    assert r.json()["created"] == len(doc["budgets"])

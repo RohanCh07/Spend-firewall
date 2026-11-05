@@ -11,3 +11,6 @@ out/
 .mypy_cache/
 .ruff_cache/
 *.egg-info/
+*.tsbuildinfo
+extensions/vscode/schema/
+extensions/browser/dist/

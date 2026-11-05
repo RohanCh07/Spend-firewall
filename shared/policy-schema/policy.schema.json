@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/RohanCh07/Spend-firewall/shared/policy-schema/policy.schema.json",
+  "title": "Spend Firewall policy file (spendfirewall.yaml)",
+  "description": "Budgets and settings applied with `PUT /v1/admin/policies`. Budgets are matched by name: new names are created, existing ones updated, and enabled budgets missing from the file are disabled.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "budgets"],
+  "properties": {
+    "version": { "const": 1, "description": "Policy file format version." },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "fail_mode": {
+          "enum": ["open", "closed"],
+          "description": "closed: block calls if the firewall's Redis is down (no overspend). open: allow them unenforced (no downtime)."
+        },
+        "loop_max_repeats": { "type": "integer", "minimum": 0, "maximum": 10000, "description": "Block a session after this many identical calls in the window. 0 disables loop detection." },
+        "loop_window_seconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+        "require_identity": { "type": "boolean", "description": "Reject calls without X-Agent-Id and X-Session-Id headers." },
+        "slack_webhook_url": { "type": "string", "format": "uri" },
+        "alert_email": { "type": "string", "format": "email" }
+      }
+    },
+    "budgets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "scope", "window", "limit_usd"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 200, "description": "Unique name; used to match budgets between syncs." },
+          "scope": {
+            "enum": ["session", "agent", "customer", "tenant"],
+            "description": "What the budget is counted per. tenant = the whole account."
+          },
+          "scope_id": {
+            "type": ["string", "null"],
+            "maxLength": 128,
+            "description": "Apply only to this one agent/session/customer id. Omit to give every id its own budget."
+          },
+          "window": {
+            "enum": ["total", "minute", "hour", "day", "month"],
+            "description": "Time window the limit resets on. total = never resets (30-day retention)."
+          },
+          "limit_usd": { "type": "number", "exclusiveMinimum": 0, "description": "Maximum spend in USD per window." },
+          "enabled": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  }
+}
