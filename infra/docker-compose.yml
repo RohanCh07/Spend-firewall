@@ -35,6 +35,7 @@ services:
     ports: ["9000:9000"]
   dashboard:
     build:
-      context: ../dashboard
+      context: ..
+      dockerfile: dashboard/Dockerfile
     ports: ["5173:80"]
     profiles: ["ui"]

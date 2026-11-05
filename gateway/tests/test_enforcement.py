@@ -80,6 +80,7 @@ async def test_loop_detection_blocks_repeats(h: Harness):
     assert codes[:5] == [200] * 5 and codes[5:] == [429, 429]
     r = await h.chat(session="loopy")
     assert r.json()["error"]["type"] == "loop_detected" and r.headers["x-should-retry"] == "false"
+    assert r.json()["error"]["repeats"] == 8
     # different content in the same session is fine
     assert (await h.chat(session="loopy", messages=[{"role": "user", "content": "new question"}])).status_code == 200
 

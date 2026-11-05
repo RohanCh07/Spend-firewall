@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.storage.db import ApiKey, Policy, Tenant
 
@@ -110,6 +110,17 @@ class TenantService:
             e = _Entry(ctx, now + self.ttl)
             self._tenants[tenant_id] = e
         return e.value  # type: ignore[return-value]
+
+
+async def bootstrap_tenant(s: AsyncSession, name: str, raw_key: str, **settings: object) -> bool:
+    """Create a tenant + admin key unless the key already exists. Runs inside init_db's lock."""
+    if (await s.execute(select(ApiKey).where(ApiKey.key_hash == hash_key(raw_key)))).first():
+        return False
+    t = Tenant(name=name, **settings)
+    s.add(t)
+    await s.flush()
+    s.add(ApiKey(tenant_id=t.id, name="bootstrap admin key", key_hash=hash_key(raw_key), prefix=raw_key[:10], role="admin"))
+    return True
 
 
 async def create_tenant_with_key(

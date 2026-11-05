@@ -1,8 +1,9 @@
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, Text
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, Text, text
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -115,6 +116,26 @@ def make_sessionmaker(engine: AsyncEngine) -> async_sessionmaker:
     return async_sessionmaker(engine, expire_on_commit=False)
 
 
+INIT_LOCK_ID = 72_340_001
+
+
 async def create_all(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
+        await _lock(conn)
         await conn.run_sync(Base.metadata.create_all)
+
+
+async def _lock(conn: AsyncConnection) -> None:
+    """Serialize schema setup across workers starting at the same time (Postgres only)."""
+    if conn.dialect.name == "postgresql":
+        await conn.execute(text(f"SELECT pg_advisory_xact_lock({INIT_LOCK_ID})"))
+
+
+async def init_db(engine: AsyncEngine, bootstrap: Callable[[AsyncSession], Awaitable[None]] | None = None) -> None:
+    async with engine.begin() as conn:
+        await _lock(conn)
+        await conn.run_sync(Base.metadata.create_all)
+        if bootstrap:
+            session = AsyncSession(bind=conn, expire_on_commit=False)
+            await bootstrap(session)
+            await session.flush()

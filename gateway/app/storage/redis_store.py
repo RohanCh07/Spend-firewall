@@ -27,7 +27,7 @@ if loop_on == 1 then
   local lk = KEYS[n_kill + 1]
   local c = redis.call('INCR', lk)
   if c == 1 then redis.call('EXPIRE', lk, loop_window) end
-  if c > loop_max then return {2, c, 0} end
+  if c > loop_max then return {2, 0, c} end
   first_budget = n_kill + 2
 end
 

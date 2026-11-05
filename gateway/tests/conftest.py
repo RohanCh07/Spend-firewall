@@ -12,7 +12,6 @@ from asgi_lifespan import LifespanManager
 from app.config import Settings
 from app.main import create_app
 from app.services.tenants import create_tenant_with_key
-from app.storage.db import Base, make_engine
 from tests.mock_upstream import MockUpstream
 
 ADMIN_KEY = "sf-test-admin-key"
