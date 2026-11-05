@@ -1,0 +1,16 @@
+services:
+  gateway:
+    build: ../gateway
+    ports: ["8080:8080"]
+    env_file: ../.env
+    depends_on: [redis, postgres]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: firewall
+      POSTGRES_PASSWORD: firewall
+      POSTGRES_DB: firewall
+    ports: ["5432:5432"]
