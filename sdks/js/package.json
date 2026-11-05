@@ -1,0 +1,20 @@
+{
+  "name": "spendfirewall",
+  "version": "0.1.0",
+  "description": "Client for the Spend Firewall gateway: OpenAI client helpers and the management API.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test test/sdk.test.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

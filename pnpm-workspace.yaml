@@ -1,0 +1,4 @@
+packages:
+  - sdks/js
+  - dashboard
+  - extensions/*

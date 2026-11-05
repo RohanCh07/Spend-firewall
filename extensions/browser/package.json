@@ -1,0 +1,22 @@
+{
+  "name": "spendfirewall-browser",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Spend Firewall companion: live AI agent spend, alerts and kill switch in your toolbar.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/format.test.mjs",
+    "zip": "pnpm build && cd dist && zip -qr ../spendfirewall-browser.zip ."
+  },
+  "dependencies": {
+    "spendfirewall": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  }
+}

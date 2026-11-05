@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=./policy.schema.json
+version: 1
+settings:
+  fail_mode: closed
+  loop_max_repeats: 5
+  loop_window_seconds: 60
+budgets:
+  - name: per-session
+    scope: session
+    window: total
+    limit_usd: 2
+  - name: per-agent-daily
+    scope: agent
+    window: day
+    limit_usd: 25
+  - name: research-bot-hourly
+    scope: agent
+    scope_id: research-bot
+    window: hour
+    limit_usd: 5
+  - name: account-monthly
+    scope: tenant
+    window: month
+    limit_usd: 500

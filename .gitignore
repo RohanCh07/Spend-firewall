@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.db
+node_modules/
+dist/
+out/
+*.vsix
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+*.tsbuildinfo
+extensions/vscode/schema/
+extensions/browser/dist/

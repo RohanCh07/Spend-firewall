@@ -1,0 +1,9 @@
+{
+  "name": "spend-firewall",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r --filter spendfirewall build && pnpm -r --filter '!spendfirewall' build",
+    "test": "pnpm -r test"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

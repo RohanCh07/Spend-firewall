@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gateway:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: firewall
+          POSTGRES_PASSWORD: firewall
+          POSTGRES_DB: firewall
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U firewall" --health-interval 2s --health-retries 20
+    defaults:
+      run:
+        working-directory: gateway
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check app tests
+      - name: Tests (SQLite)
+        run: pytest -q
+        env:
+          TEST_REDIS_URL: redis://localhost:6379/0
+      - name: Tests (Postgres)
+        run: pytest -q
+        env:
+          TEST_REDIS_URL: redis://localhost:6379/1
+          TEST_DATABASE_URL: postgresql+asyncpg://firewall:firewall@localhost:5432/firewall
+
+  python-sdk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdks/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
+  js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter spendfirewall build
+      - name: Build dashboard and extensions
+        run: pnpm --filter spendfirewall-dashboard --filter spendfirewall-vscode --filter spendfirewall-browser build
+      - name: Typecheck extensions
+        run: pnpm --filter spendfirewall-vscode --filter spendfirewall-browser typecheck
+      - run: pnpm -r test
