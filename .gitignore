@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .venv/
 .env
+*.db
 node_modules/
 dist/
 out/
@@ -9,3 +10,4 @@ out/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+*.egg-info/
